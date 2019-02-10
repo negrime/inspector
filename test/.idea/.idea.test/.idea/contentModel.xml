@@ -2,8 +2,8 @@
 <project version="4">
   <component name="ContentModelStore">
     <e p="C:\Users\scorp\.Rider2018.3\system\extResources" t="IncludeRecursive" />
-    <e p="C:\Users\scorp\.Rider2018.3\system\resharper-host\local\Transient\ReSharperHost\v183\SolutionCaches\_test.-1693232524.00" t="ExcludeRecursive" />
-    <e p="C:\Users\scorp\Desktop\GIT\test" t="IncludeRecursive">
+    <e p="C:\Users\scorp\.Rider2018.3\system\resharper-host\local\Transient\ReSharperHost\v183\SolutionCaches\_test.1576027407.00" t="ExcludeRecursive" />
+    <e p="C:\Users\scorp\Desktop\GIT\inspector\test" t="IncludeRecursive">
       <e p="Assembly-CSharp.csproj" t="IncludeRecursive" />
       <e p="Assets\Scripts" t="Include">
         <e p="Data.cs" t="Include" />

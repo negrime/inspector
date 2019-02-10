@@ -8,8 +8,12 @@ public class GameHandler : MonoBehaviour
 	[Header("Person")]
 	public Person person;
 	public Text money;
-	
+
 	[Header("Gameplay UI")]
+	public Slider waterSlider;
+	public Slider foodSlider;
+	public Image gamePanel;
+	public GameObject lifePanel;
 	public bool ok;
 	public Text[] passport;
 	public Text[] pass;
@@ -22,24 +26,40 @@ public class GameHandler : MonoBehaviour
 	public Button nextBtn;
 	Data data = new Data();
 	
-	private int time = 8;
+	public int time = 8;
 	private float tempTime = 0;
+	private bool isDay = true;
 	
 	void Start () 
 	{
 		Clear();
-		
 	}
 
 	private void Update()
-	{
-		timeTxt.text = time.ToString() + ":00";
+	{	
 		money.text = "$ " + person.money.ToString();
-		tempTime += Time.deltaTime;
-		if ((int)tempTime == 6)
+		if (isDay)
 		{
-			tempTime = 0;
-			time++;
+			tempTime += Time.deltaTime;
+			if ((int)tempTime == 6)
+			{
+				foodSlider.value -= person.eat;
+				waterSlider.value -= person.water;
+				time++;
+				tempTime = 0;
+			}
+			timeTxt.text = time.ToString() + ":00";
+			if (time == 18)
+			{
+				lifePanel.SetActive(true);
+				time = 0;
+				isDay = false;
+				Attention("Рабочий день закончен!");
+				Clear();
+				enterBtn.interactable = false;
+				cancelBtn.interactable = false;
+				nextBtn.interactable = false;
+			}
 		}
 	}
 
@@ -84,6 +104,20 @@ public class GameHandler : MonoBehaviour
 		else
 		{
 			person.money += person.payment;
+		}
+	}
+
+	public void NewDayClick()
+	{
+		if (!Die())
+		{
+			isDay = true;
+			enterBtn.interactable = false;
+			cancelBtn.interactable = false;
+			nextBtn.interactable = true;
+			time = 8;
+			tempTime = 0;
+			lifePanel.SetActive(false);
 		}
 	}
 
@@ -162,6 +196,38 @@ public class GameHandler : MonoBehaviour
 		StartCoroutine(Pause());
 	}
 
+	private bool Die()
+	{
+		bool result = false;
+
+		if (foodSlider.value > 0)
+		{
+			result = false;
+		}
+		else
+		{
+			result = true;
+		}
+		return result;
+	}
+
+	public void EatButton()
+	{
+		if (person.money >= person.eatCost)
+		{
+			person.money -= person.eatCost;
+			foodSlider.value += person.eat * 2;
+		}
+	}
+
+	public void WaterButton()
+	{
+		if (person.money >= person.waterCost)
+		{
+			person.money -= person.waterCost;
+			waterSlider.value += person.water * 2;
+		}
+	}
 	IEnumerator Pause()
 	{
 		Debug.Log("Pause");
@@ -169,4 +235,5 @@ public class GameHandler : MonoBehaviour
 		attentionPanel.SetActive(false);
 		Debug.Log("UNPause");
 	}
+	
 }
