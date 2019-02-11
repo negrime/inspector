@@ -7,8 +7,9 @@ public class Person : MonoBehaviour
 	public int payment;
 	public int money;
 	public int penalty;
-	
-	
+
+    public int day = 1;
+
 	public int eat = 5;
 	public int eatCost = 5;
 	public int water = 3;

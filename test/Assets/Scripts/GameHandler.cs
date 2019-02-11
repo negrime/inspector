@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 public class GameHandler : MonoBehaviour
 {
@@ -18,9 +19,11 @@ public class GameHandler : MonoBehaviour
 	public Text[] passport;
 	public Text[] pass;
 	public Text timeTxt;
+    public Text dayTxt;
 	public Text kek;
 	public GameObject attentionPanel;
-	[Header("Buttons")] 
+    [Header("Buttons")]
+    public GameObject restartBtn;
 	public Button cancelBtn;
 	public Button enterBtn;
 	public Button nextBtn;
@@ -33,11 +36,22 @@ public class GameHandler : MonoBehaviour
 	void Start () 
 	{
 		Clear();
-	}
+        dayTxt.text = "День: " + person.day.ToString();
+        lifePanel.SetActive(false);
+    }
 
-	private void Update()
+    private void Update()
 	{	
-		money.text = "$ " + person.money.ToString();
+        if (person.money < 0)
+        {
+            money.text = "$БАНКРОТ";
+            GameOver();
+        }
+        else
+        {
+            money.text = "$ " + person.money.ToString();
+        }
+
 		if (isDay)
 		{
 			tempTime += Time.deltaTime;
@@ -81,7 +95,7 @@ public class GameHandler : MonoBehaviour
 		nextBtn.interactable = true;
 		if (!ok)
 		{
-			Attention("Вы пропустили гражданина с поддельными документами! Штраф " + person.penalty.ToString() + "$!");
+			Attention("Вы пропустили гражданина с поддельными документами!\nШтраф " + person.penalty.ToString() + "$!");
 			person.money -= person.penalty;
 		}
 		else
@@ -118,6 +132,8 @@ public class GameHandler : MonoBehaviour
 			time = 8;
 			tempTime = 0;
 			lifePanel.SetActive(false);
+            person.day++;
+            dayTxt.text = "День: " + person.day.ToString();
 		}
 	}
 
@@ -165,7 +181,15 @@ public class GameHandler : MonoBehaviour
 					pass[3].text = temp.Insert(Random.Range(0, temp.Length), Random.Range(0, 9).ToString());
 					break;
 				case 4:
-					pass[4].text = "HUY";
+                    do
+                    {
+                        temp = passport[4].text;
+                        temp = temp.Insert(2, Random.Range(1, 10).ToString());
+                        temp = temp.Insert(3, Random.Range(1, 10).ToString());
+                        pass[4].text = temp.Remove(4, 2);
+
+                    } while (pass[4].text == passport[4].text);
+                    
 					break;
 					
 			}
@@ -187,13 +211,13 @@ public class GameHandler : MonoBehaviour
 		}
 	}
 
-	private void Attention(string message, string upInfo = "Внимание!")
+	private void Attention(string message, string upInfo = "Внимание!", int time = 5)
 	{
 		attentionPanel.SetActive(true);
 		Text[] t = attentionPanel.GetComponentsInChildren<Text>();
 		t[0].text = upInfo;
 		t[1].text = message;
-		StartCoroutine(Pause());
+		StartCoroutine(Pause(time));
 	}
 
 	private bool Die()
@@ -213,7 +237,7 @@ public class GameHandler : MonoBehaviour
 
 	public void EatButton()
 	{
-		if (person.money >= person.eatCost)
+		if (person.money >= person.eatCost && foodSlider.value < 100)
 		{
 			person.money -= person.eatCost;
 			foodSlider.value += person.eat * 2;
@@ -222,18 +246,37 @@ public class GameHandler : MonoBehaviour
 
 	public void WaterButton()
 	{
-		if (person.money >= person.waterCost)
+		if (person.money >= person.waterCost && waterSlider.value < 100)
 		{
 			person.money -= person.waterCost;
 			waterSlider.value += person.water * 2;
 		}
 	}
-	IEnumerator Pause()
+
+    public void RestartClick()
+    {
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+    }
+
+    private void GameOver()
+    {
+        lifePanel.SetActive(false);
+        time = 0;
+        isDay = false;
+        Attention("Вы проиграли!", time : 20);
+        Clear();
+        enterBtn.interactable = false;
+        cancelBtn.interactable = false;
+        nextBtn.interactable = false;
+        restartBtn.SetActive(true);
+
+    }
+    IEnumerator Pause(int time = 5)
 	{
-		Debug.Log("Pause");
-		yield return new WaitForSeconds(5);
+		yield return new WaitForSeconds(time);
 		attentionPanel.SetActive(false);
-		Debug.Log("UNPause");
 	}
+
+    
 	
 }
