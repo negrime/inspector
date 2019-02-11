@@ -14,4 +14,6 @@ public class Person : MonoBehaviour
 	public int eatCost = 5;
 	public int water = 3;
 	public int waterCost = 5;
+	public int stress = 2;
+	public int stressCost = 5;
 }

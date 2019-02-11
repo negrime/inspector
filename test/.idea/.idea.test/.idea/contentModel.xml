@@ -6,6 +6,7 @@
     <e p="C:\Users\scorp\Desktop\GIT\inspector\test" t="IncludeRecursive">
       <e p="Assembly-CSharp.csproj" t="IncludeRecursive" />
       <e p="Assets\Scripts" t="Include">
+        <e p="Crit.cs" t="Include" />
         <e p="Data.cs" t="Include" />
         <e p="GameHandler.cs" t="Include" />
         <e p="Person.cs" t="Include" />

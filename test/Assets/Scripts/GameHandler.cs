@@ -10,7 +10,9 @@ public class GameHandler : MonoBehaviour
 	public Person person;
 	public Text money;
 
-	[Header("Gameplay UI")]
+	[Header("Gameplay UI")] 
+	public GameObject critTxt;
+	public Slider stressSlider;
 	public Slider waterSlider;
 	public Slider foodSlider;
 	public Image gamePanel;
@@ -38,6 +40,7 @@ public class GameHandler : MonoBehaviour
 		Clear();
         dayTxt.text = "День: " + person.day.ToString();
         lifePanel.SetActive(false);
+        attentionPanel.SetActive(false);
     }
 
     private void Update()
@@ -59,6 +62,7 @@ public class GameHandler : MonoBehaviour
 			{
 				foodSlider.value -= person.eat;
 				waterSlider.value -= person.water;
+				stressSlider.value -= person.stress;
 				time++;
 				tempTime = 0;
 			}
@@ -95,11 +99,14 @@ public class GameHandler : MonoBehaviour
 		nextBtn.interactable = true;
 		if (!ok)
 		{
-			Attention("Вы пропустили гражданина с поддельными документами!\nШтраф " + person.penalty.ToString() + "$!");
+			CreateCrit("-" + person.penalty.ToString(), Color.red);
+			Attention("Вы пропустили гражданина\nс поддельными документами!\nШтраф " + person.penalty.ToString() + "$!");
 			person.money -= person.penalty;
+			stressSlider.value -= person.stress * 5;
 		}
 		else
 		{
+			CreateCrit("+" + person.payment.ToString(), Color.green);
 			person.money += person.payment;
 		}
 	}
@@ -112,11 +119,14 @@ public class GameHandler : MonoBehaviour
 		nextBtn.interactable = true;
 		if (ok)
 		{
+			CreateCrit("-" + person.penalty.ToString(), Color.red);
 			person.money -= person.penalty;
-			Attention("Вы не пропустили гражданина с корректными документами! Штраф " + person.penalty.ToString() + "$!");
+			Attention("Вы не пропустили гражданина\nс корректными документами!\nШтраф " + person.penalty.ToString() + "$!");
+			stressSlider.value -= person.stress * 5;
 		}
 		else
 		{
+			CreateCrit("+" + person.payment.ToString(), Color.green);
 			person.money += person.payment;
 		}
 	}
@@ -134,6 +144,10 @@ public class GameHandler : MonoBehaviour
 			lifePanel.SetActive(false);
             person.day++;
             dayTxt.text = "День: " + person.day.ToString();
+		}
+		else
+		{
+			GameOver();
 		}
 	}
 
@@ -224,7 +238,7 @@ public class GameHandler : MonoBehaviour
 	{
 		bool result = false;
 
-		if (foodSlider.value > 0)
+		if (foodSlider.value > 0 && waterSlider.value > 0 && stressSlider.value > 0)
 		{
 			result = false;
 		}
@@ -239,6 +253,7 @@ public class GameHandler : MonoBehaviour
 	{
 		if (person.money >= person.eatCost && foodSlider.value < 100)
 		{
+			CreateCrit("-" + person.eatCost.ToString(), Color.red);
 			person.money -= person.eatCost;
 			foodSlider.value += person.eat * 2;
 		}
@@ -248,6 +263,7 @@ public class GameHandler : MonoBehaviour
 	{
 		if (person.money >= person.waterCost && waterSlider.value < 100)
 		{
+			CreateCrit("-" + person.waterCost.ToString(), Color.red);
 			person.money -= person.waterCost;
 			waterSlider.value += person.water * 2;
 		}
@@ -269,7 +285,24 @@ public class GameHandler : MonoBehaviour
         cancelBtn.interactable = false;
         nextBtn.interactable = false;
         restartBtn.SetActive(true);
+    }
 
+    public void StressClick()
+    {
+	    if (person.money >= person.stressCost && stressSlider.value < 100)
+	    {
+		    CreateCrit("-" + person.stressCost.ToString(), Color.red);
+		    stressSlider.value += person.stress * 2;
+		    person.money -= person.stressCost;
+	    }
+    }
+
+    public void CreateCrit(string msg, Color color)
+    {
+	    var g = Instantiate(critTxt, money.transform.position, Quaternion.identity, money.transform);
+	    g.GetComponent<Crit>().dir = Crit.Dir.pY;
+	    g.GetComponent<Text>().color = color;
+	    g.GetComponent<Text>().text = msg;
     }
     IEnumerator Pause(int time = 5)
 	{
